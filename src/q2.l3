@@ -33,17 +33,21 @@
 )
 
 (define result->val
-  (lambda (res)
-    (cdr res)
+	(lambda (res)
+		(cdr res)
+	)
 )
 
 (define bind 
-  (lambda (f)
-    (lambda (res)
-    (if ok?) 
-      (make-ok(f (cdr res))
-        (res)))))
+	(lambda (f)
+		(lambda (res)
+			(if ok?) 
+			(make-ok (f (cdr res)))
+			(res)
+		)
+	)
 )
+
 
 (define make-dict
   (lambda ()
