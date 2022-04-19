@@ -1,35 +1,32 @@
 (define make-ok
   (lambda (val)
-    (cons ok val)
+    (cons "ok" val)
   )
  )
  
 (define make-error
   (lambda (msg)
-    (cons error msg)
+    (cons "error" msg)
   )
 )
 
 (define ok?
   (lambda (res)
     (and (pair? res)
-    (equal? (cons (car res) 1)(make-ok 1)))
-
+    (= (car res) "ok")
   )
  )
 
 (define error?
   (lambda (res)
-(and (pair? res)
-    (equal? (cons (car res) 1)(make-error 1)))
-  )
+	(and (pair? res)
+	(= (car res) "error")
+	)
  )
 
 (define result?
   (lambda (res)
-    (and (pair? res)
-    (or (equal? (cons (car res) 1)(make-ok (1))
-    (equal?(cons (car res) 1)(make-error (1))))
+    (or (ok? res) (error? res))
   )
  )
 
