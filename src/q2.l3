@@ -48,13 +48,17 @@
 
 (define make-dict
   (lambda ()
-    @TODO
+    ('())
   )
 )
 
 (define dict?
   (lambda (e)
-    @TODO
+    (if (empty? e)
+    #t
+    (if (pair?(car e)))
+    (if (dict? (cdr e)))
+    #f
   )
 )
 
