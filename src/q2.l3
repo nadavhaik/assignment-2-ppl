@@ -1,0 +1,83 @@
+(define make-ok
+  (lambda (val)
+    (cons ok val)
+  )
+ )
+ 
+(define make-error
+  (lambda (msg)
+    (cons error msg)
+  )
+)
+
+(define ok?
+  (lambda (res)
+    (and (pair? res)
+    (equal? (cons (car res) 1)(make-ok 1)))
+
+  )
+ )
+
+(define error?
+  (lambda (res)
+(and (pair? res)
+    (equal? (cons (car res) 1)(make-error 1)))
+  )
+ )
+
+(define result?
+  (lambda (res)
+    (and (pair? res)
+    (or (equal? (cons (car res) 1)(make-ok (1))
+    (equal?(cons (car res) 1)(make-error (1))))
+  )
+ )
+
+(define result->val
+  (lambda (res)
+    (cdr res)
+)
+
+(define bind 
+  (lambda (f)
+    (lambda (res)
+    (if ok?) 
+      (make-ok(f (cdr res))
+        (res)))))
+)
+
+(define make-dict
+  (lambda ()
+    @TODO
+  )
+)
+
+(define dict?
+  (lambda (e)
+    @TODO
+  )
+)
+
+(define get
+  (lambda (dict k)
+    @TODO
+  )
+)
+
+(define put
+  (lambda (dict k v)
+    @TODO
+  )
+)
+
+(define map-dict
+  (lambda (dict f)
+    @TODO
+  )
+)
+
+(define filter-dict
+  (lambda (dict pred)
+    @TODO
+  )
+)
