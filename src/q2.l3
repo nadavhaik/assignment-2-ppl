@@ -13,22 +13,24 @@
 (define ok?
   (lambda (res)
     (and (pair? res)
-    (= (car res) "ok")
+    (equal? (car res) "ok")
   )
  )
+)
 
 (define error?
-  (lambda (res)
-	(and (pair? res)
-	(= (car res) "error")
+	(lambda (res)
+		(and (pair? res)
+			(equal? (car res) "error")
+		)
 	)
- )
+)
 
 (define result?
-  (lambda (res)
-    (or (ok? res) (error? res))
-  )
- )
+	(lambda (res)
+		(or (ok? res) (error? res))
+	)
+)
 
 (define result->val
   (lambda (res)
