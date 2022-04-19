@@ -13,7 +13,7 @@
 (define ok?
   (lambda (res)
     (and (pair? res)
-    (equal? (car res) "ok")
+    (= (car res) "ok")
   )
  )
 )
@@ -21,7 +21,7 @@
 (define error?
 	(lambda (res)
 		(and (pair? res)
-			(equal? (car res) "error")
+			(= (car res) "error")
 		)
 	)
 )
