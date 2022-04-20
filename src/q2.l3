@@ -51,30 +51,52 @@
 
 (define make-dict
   (lambda ()
-    ('())
+    (list 'dictend)
   )
 )
 
 (define dict?
-  (lambda (e)
-    (if (empty? e)
-    #t
-    (if (pair?(car e)))
-    (if (dict? (cdr e)))
-    #f
-  )
+	(lambda (d)
+		(if (or ((= (list? d) #f) (empty d)))
+			(#f)
+			(= (nth d (- (length d) 1)) 'dictend)
+		)
+	)
 )
+
 
 (define get
-  (lambda (dict k)
-    @TODO
-  )
+	(lambda (dict k)
+		(if (= (car (car dict)) k)
+			(make-ok (cdr (car dict)))
+			(if (= (cdr dict) 'dictend)
+				(make-error "key not found")
+				(get (cdr dict) k)
+			)
+		)
+	)
 )
 
+(define put_rec
+	(lambda (dict k v)
+		(if (= (cdr dict) 'dictend)
+			(cons (cons (car dict) (cons k v)) 'dictend)
+			(if (= cdr (car (car dict)) k)
+				(cons (cons k v) (cdr dict))			
+				(cons (car dict) (put_rec (cdr dict) k v))
+			)
+		)
+	)	
+)
+
+
 (define put
-  (lambda (dict k v)
-    @TODO
-  )
+  	(lambda (dict k v)
+		(if (= (car (car dict)) k)
+			(make-ok (cons (cons k v) (cdr dict)))
+			(make-ok (put_rec dict k v))
+		)
+	)
 )
 
 (define map-dict
