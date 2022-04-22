@@ -165,7 +165,7 @@
 		(if (pair? (car old-dict-iter))
 			(
 				map-dict-rec 
-				(put new-dict (car (car old-dict-iter)) (f (cdr (car old-dict-iter))))
+				(put (new-dict (car (car old-dict-iter)) (f (cdr (car old-dict-iter)))))
 				(cdr old-dict-iter)
 				f
 			)
