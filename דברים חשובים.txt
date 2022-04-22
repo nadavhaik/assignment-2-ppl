@@ -1,3 +1,4 @@
 1. Check if checking 'pair?' is neccesary before comparing to symbols / primitive types.
 2. Write the documentation PDF.
-3. map should be on *keys* and values
+3. map should be operated on - ???
+4.predicte should operate on keys and values
