@@ -12,16 +12,18 @@
 )
 
 (define ok?
-  (lambda (res)
-    (and (pair? res)
-    (= (car res) "ok")
-  )
- )
+	(lambda (res)
+		(if (= (pair? res) #f)
+			#f
+			(= (car res) "ok")
+		)
+	)
 )
 
 (define error?
 	(lambda (res)
-		(and (pair? res)
+		(if (= (pair? res) #f)
+			#f
 			(= (car res) "error")
 		)
 	)
@@ -42,9 +44,9 @@
 (define bind 
 	(lambda (f)
 		(lambda (res)
-			(if ok? 
-				(make-ok (f (cdr res)))
-				(res)
+			(if (ok? res)
+				(f (result->val res))
+				res
 			)
 		)
 	)
@@ -52,15 +54,45 @@
 
 (define make-dict
   (lambda ()
-    (list 'dictend)
+    (list 'dictend )
   )
 )
 
+
+(define empty?
+	(lambda (l)
+		(if (pair? l)
+			#f
+			(= l '() )
+		)
+	)
+)
+
+(define list?
+	(lambda (l)
+		(if (empty? l)
+			#t
+			(if (pair? l)
+				(list? cdr l)
+				#f
+			)
+		)
+	)
+)
+
+
+
 (define dict?
 	(lambda (d)
-		(if (or ((= (list? d) #f) (empty d)))
-			(#f)
-			(= (nth d (- (length d) 1)) 'dictend)
+		(if (= (list? d) #f)
+			#f
+			(if (= (empty? d) #f)
+				#f
+				(if (= (pair? car d) #f)
+					(= (car d) 'dictend )
+				(dict? cdr d)
+				)
+			)
 		)
 	)
 )
@@ -70,7 +102,7 @@
 	(lambda (dict k)
 		(if (= (car (car dict)) k)
 			(make-ok (cdr (car dict)))
-			(if (= (cdr dict) 'dictend)
+			(if (= (cdr dict) 'dictend )
 				(make-error "key not found")
 				(get (cdr dict) k)
 			)
