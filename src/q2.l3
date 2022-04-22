@@ -162,10 +162,10 @@
 
 (define map-dict-rec
 	(lambda (new-dict old-dict-iter f)
-		(if (pair? car old-dict-iter)
+		(if (pair? (car old-dict-iter))
 			(
 				map-dict-rec 
-				(put new-dict (f (car (car old-dict-iter))) (f (cdr (car old-dict-iter))))
+				(put new-dict (car (car old-dict-iter)) (f (cdr (car old-dict-iter))))
 				(cdr old-dict-iter)
 				f
 			)
@@ -183,9 +183,10 @@
 
 
 (define filter-dict-rec
-	(lambda (dict new-dict old-dict-iter pred)
-		(if (pair? car old-dict-iter)
-			(if (pred (cdr (car old-dict-iter)))
+	(lambda (new-dict old-dict-iter pred)
+		(if (empty-dict? old-dict-iter)
+			new-dict
+			(if (pred (car (car old-dict-iter)) (cdr (car old-dict-iter)))
 				(
 					filter-dict-rec
 					(put new-dict (car (car old-dict-iter)) (cdr (car old-dict-iter)))
@@ -194,7 +195,6 @@
 				)
 				(filter-dict-rec new-dict (cdr old-dict-iter) pred)
 			)
-		new-dict
 		)
 	)
 )
@@ -202,7 +202,7 @@
 
 (define filter-dict
 	(lambda (dict pred)
-		(make-ok (filter-dict-rec (make-dict) dict pred))
+		(make-ok (filter-dict-rec (make-dict ) dict pred))
 	)
 )
 
