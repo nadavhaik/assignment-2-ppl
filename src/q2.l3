@@ -106,16 +106,26 @@
 	)
 )
 
+(define get-rec
+	(lambda (dict k)
+		(if (empty-dict? dict)
+			(make-error "key not found")
+			(if (= (car (car dict) k))
+				(cdr (car dict))
+				(get (cdr dict) k)
+			)
+		)
+	)
+)
+
 (define get
 	(lambda (dict k)
 		(if (not (dict? dict))
 			(make-error "not a dictionary")
-			(if (empty-dict? dict)
-				(make-error "key not found")
-				(if (= (car (car dict) k))
-					(make-ok (cdr (car dict)))
-					(get (cdr dict) k)
-				)
+			(
+				(if (error? (get-rec dict k))
+					(get-rec dict k)
+					(make-ok (get-rec dict k))
 			)
 		)
 	)
