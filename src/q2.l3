@@ -54,7 +54,7 @@
 
 (define make-dict
   (lambda ()
-    (list 'dictend )
+    (list "dictend")
   )
 )
 
@@ -84,12 +84,12 @@
 
 (define dict?
 	(lambda (d)
-		(if (= (list? d) #f)
+		(if (not (list? d))
 			#f
 			(if (empty? d)
 				#f
 				(if (= (pair? (car d)) #f)
-					(= (car d) 'dictend )
+					(= (car d) "dictend")
 					(dict? (cdr d))
 				)
 			)
@@ -97,13 +97,25 @@
 	)
 )
 
+(define empty-dict?
+	(lambda (dict)
+		(if (not (dict? dict))
+			#f
+			(not (pair? (car dict)))
+		)
+	)
+)
+
 (define get
 	(lambda (dict k)
-		(if (= (car (car dict)) k)
-			(make-ok (cdr (car dict)))
-			(if (= (cdr dict) 'dictend )
+		(if (not (dict? dict))
+			(make-error "not a dictionary")
+			(if (empty-dict? dict)
 				(make-error "key not found")
-				(get (cdr dict) k)
+				(if (= (car (car dict) k))
+					(make-ok (cdr (car dict)))
+					(get (cdr dict) k)
+				)
 			)
 		)
 	)
@@ -111,8 +123,8 @@
 
 (define put-rec
 	(lambda (dict k v)
-		(if (= (pair? (cdr dict)) #f)
-			(cons (cons (car dict) (cons k v)) 'dictend )
+		(if (empty-dict? (cdr dict))
+			(cons (cons (car dict) (cons k v)) "dictend")
 			(if (= cdr (car (car dict)) k)
 				(cons (cons k v) (cdr dict))			
 				(cons (car dict) (put-rec (cdr dict) k v))
@@ -121,11 +133,19 @@
 	)	
 )
 
+
+
 (define put
   	(lambda (dict k v)
-		(if (and (pair car dict) (= (car (car dict)) k))
-			(make-ok (cons (cons k v) (cdr dict)))
-			(make-ok (put-rec dict k v))
+		(if (not (dict? dict))
+			(make-error "not a dictionary")
+			(if (empty-dict? dict)
+				(make-ok (list (cons k v) "dictend"))
+				(if (= (car (car dict)) k)
+					(make-ok (cons (cons k v) (cdr dict)))
+					(make-ok (put-rec dict k v))
+				)
+			)
 		)
 	)
 )
