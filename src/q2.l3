@@ -109,7 +109,7 @@
 (define get-rec
 	(lambda (dict k)
 		(if (empty-dict? dict)
-			(make-error "key not found")
+			(make-error "Key not found")
 			(if (= (car (car dict)) k)
 				(cdr (car dict))
 				(get-rec (cdr dict) k)
@@ -121,7 +121,7 @@
 (define get
 	(lambda (dict k)
 		(if (not (dict? dict))
-			(make-error "not a dictionary")
+			(make-error "Error: not a dictionary")
 			(if (error? (get-rec dict k))
 				(get-rec dict k)
 				(make-ok (get-rec dict k))
@@ -147,7 +147,7 @@
 (define put
   	(lambda (dict k v)
 		(if (not (dict? dict))
-			(make-error "not a dictionary")
+			(make-error "Error: not a dictionary")
 			(if (empty-dict? dict)
 				(make-ok (list (cons k v) "dictend"))
 				(if (= (car (car dict)) k)
@@ -165,7 +165,7 @@
 		(if (pair? car old-dict-iter)
 			(
 				map-dict-rec 
-				(put new-dict (car (car old-dict-iter)) (f (cdr (car old-dict-iter))))
+				(put new-dict (f (car (car old-dict-iter))) (f (cdr (car old-dict-iter))))
 				(cdr old-dict-iter)
 				f
 			)
