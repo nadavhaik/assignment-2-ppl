@@ -1,1 +1,2 @@
-1. לבדוק אם צריך ?pair לפני שמשווים לסימבול
+1. Check if checking 'pair?' is neccesary before comparing to symbols / primitive types.
+2. Write the documentation PDF.

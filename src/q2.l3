@@ -1,3 +1,4 @@
+
 (define make-ok
   (lambda (val)
     (cons "ok" val)
@@ -41,13 +42,13 @@
 (define bind 
 	(lambda (f)
 		(lambda (res)
-			(if ok?) 
-			(make-ok (f (cdr res)))
-			(res)
+			(if ok? 
+				(make-ok (f (cdr res)))
+				(res)
+			)
 		)
 	)
 )
-
 
 (define make-dict
   (lambda ()
@@ -77,36 +78,83 @@
 	)
 )
 
-(define put_rec
+(define get
+	(lambda (dict k)
+		(if (= (car (car dict)) k)
+			(make-ok (cdr (car dict)))
+			(if (= (cdr dict) 'dictend)
+				(make-error "key not found")
+				(get (cdr dict) k)
+			)
+		)
+	)
+)
+
+(define put-rec
 	(lambda (dict k v)
-		(if (= (cdr dict) 'dictend)
+		(if (= (pair? (cdr dict)) #f)
 			(cons (cons (car dict) (cons k v)) 'dictend)
 			(if (= cdr (car (car dict)) k)
 				(cons (cons k v) (cdr dict))			
-				(cons (car dict) (put_rec (cdr dict) k v))
+				(cons (car dict) (put-rec (cdr dict) k v))
 			)
 		)
 	)	
 )
 
-
 (define put
   	(lambda (dict k v)
-		(if (= (car (car dict)) k)
+		(if (and (pair car dict) (= (car (car dict)) k))
 			(make-ok (cons (cons k v) (cdr dict)))
-			(make-ok (put_rec dict k v))
+			(make-ok (put-rec dict k v))
 		)
 	)
 )
 
+
+(define map-dict-rec
+	(lambda (new-dict old-dict-iter f)
+		(if (pair? car old-dict-iter)
+			(
+				map-dict-rec 
+				(put new-dict (car (car old-dict-iter)) (f (cdr (car old-dict-iter))))
+				(cdr old-dict-iter)
+				f
+			)
+			new-dict
+		)
+	)
+)
+		
+
 (define map-dict
-  (lambda (dict f)
-    @TODO
-  )
+	(lambda (dict f)
+		(make-ok (map-dict-rec (make-dict) dict f))
+	)
 )
 
-(define filter-dict
-  (lambda (dict pred)
-    @TODO
-  )
+
+(define filter-dict-rec
+	(lambda (dict new-dict old-dict-iter pred)
+		(if (pair? car old-dict-iter)
+			(if (pred (cdr (car old-dict-iter)))
+				(
+					filter-dict-rec
+					(put new-dict (car (car old-dict-iter)) (cdr (car old-dict-iter)))
+					(cdr old-dict-iter)
+					pred
+				)
+				(filter-dict-rec new-dict (cdr old-dict-iter) pred)
+			)
+		new-dict
+		)
+	)
 )
+
+
+(define filter-dict
+	(lambda (dict pred)
+		(make-ok (filter-dict-rec (make-dict) dict pred))
+	)
+)
+
