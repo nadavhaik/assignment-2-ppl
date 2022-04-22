@@ -73,7 +73,7 @@
 		(if (empty? l)
 			#t
 			(if (pair? l)
-				(list? cdr l)
+				(list? (cdr l))
 				#f
 			)
 		)
@@ -86,17 +86,16 @@
 	(lambda (d)
 		(if (= (list? d) #f)
 			#f
-			(if (= (empty? d) #f)
+			(if (empty? d)
 				#f
-				(if (= (pair? car d) #f)
+				(if (= (pair? (car d)) #f)
 					(= (car d) 'dictend )
-				(dict? cdr d)
+					(dict? (cdr d))
 				)
 			)
 		)
 	)
 )
-
 
 (define get
 	(lambda (dict k)
@@ -110,22 +109,10 @@
 	)
 )
 
-(define get
-	(lambda (dict k)
-		(if (= (car (car dict)) k)
-			(make-ok (cdr (car dict)))
-			(if (= (cdr dict) 'dictend)
-				(make-error "key not found")
-				(get (cdr dict) k)
-			)
-		)
-	)
-)
-
 (define put-rec
 	(lambda (dict k v)
 		(if (= (pair? (cdr dict)) #f)
-			(cons (cons (car dict) (cons k v)) 'dictend)
+			(cons (cons (car dict) (cons k v)) 'dictend )
 			(if (= cdr (car (car dict)) k)
 				(cons (cons k v) (cdr dict))			
 				(cons (car dict) (put-rec (cdr dict) k v))
