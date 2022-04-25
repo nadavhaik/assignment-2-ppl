@@ -58,7 +58,6 @@
   )
 )
 
-
 (define empty?
 	(lambda (l)
 		(if (pair? l)
@@ -79,8 +78,6 @@
 		)
 	)
 )
-
-
 
 (define dict?
 	(lambda (d)
@@ -133,16 +130,14 @@
 (define put-rec
 	(lambda (dict k v)
 		(if (empty-dict? (cdr dict))
-			(cons (cons (car dict) (cons k v)) "dictend")
-			(if (= cdr (car (car dict)) k)
+			(list (car dict) (cons k v) "dictend")
+			(if (= (cdr (car (car dict))) k)
 				(cons (cons k v) (cdr dict))			
 				(cons (car dict) (put-rec (cdr dict) k v))
 			)
 		)
 	)	
 )
-
-
 
 (define put
   	(lambda (dict k v)
@@ -164,8 +159,8 @@
 	(lambda (new-dict old-dict-iter f)
 		(if (pair? (car old-dict-iter))
 			(
-				map-dict-rec 
-				(put (new-dict (car (car old-dict-iter)) (f (cdr (car old-dict-iter)))))
+				map-dict-rec
+				(result->val (put new-dict (car (car old-dict-iter)) (f (cdr (car old-dict-iter)))))
 				(cdr old-dict-iter)
 				f
 			)
@@ -173,14 +168,14 @@
 		)
 	)
 )
-		
+
+
 
 (define map-dict
 	(lambda (dict f)
 		(make-ok (map-dict-rec (make-dict) dict f))
 	)
 )
-
 
 (define filter-dict-rec
 	(lambda (new-dict old-dict-iter pred)
@@ -189,7 +184,7 @@
 			(if (pred (car (car old-dict-iter)) (cdr (car old-dict-iter)))
 				(
 					filter-dict-rec
-					(put new-dict (car (car old-dict-iter)) (cdr (car old-dict-iter)))
+					(result->val (put new-dict (car (car old-dict-iter)) (cdr (car old-dict-iter))))
 					(cdr old-dict-iter)
 					pred
 				)
@@ -198,7 +193,6 @@
 		)
 	)
 )
-
 
 (define filter-dict
 	(lambda (dict pred)
