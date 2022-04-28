@@ -2,3 +2,5 @@
 2. Write the documentation PDF.
 3. map should be operated on - ???
 4.predicte should operate on keys and values
+5.to add explenation to all funcs in part 2
+6.to end lexical addresses in part 1 
