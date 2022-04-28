@@ -49,7 +49,7 @@ import { Sexp, Token } from "s-expression";
 
 export type Exp = DefineExp | CExp;
 export type AtomicExp = NumExp | BoolExp | StrExp | PrimOp | VarRef;
-export type CompoundExp = AppExp | IfExp | ProcExp | LetExp | LitExp;
+export type CompoundExp = AppExp | IfExp | ProcExp | LetExp | LetStarExp | LitExp;
 export type CExp =  AtomicExp | CompoundExp;
 
 export interface Program {tag: "Program"; exps: Exp[]; }
@@ -68,6 +68,9 @@ export interface Binding {tag: "Binding"; var: VarDecl; val: CExp; }
 export interface LetExp {tag: "LetExp"; bindings: Binding[]; body: CExp[]; }
 // L3
 export interface LitExp {tag: "LitExp"; val: SExpValue; }
+// L3.1
+export interface LetStarExp {tag: "LetStarExp"; bindings: Binding[]; body: CExp[]; }
+
 
 // Type value constructors for disjoint types
 export const makeProgram = (exps: Exp[]): Program => ({tag: "Program", exps: exps});
@@ -93,6 +96,9 @@ export const makeLetExp = (bindings: Binding[], body: CExp[]): LetExp =>
 // L3
 export const makeLitExp = (val: SExpValue): LitExp =>
     ({tag: "LitExp", val: val});
+// L3.1
+export const makeLetStarExp = (bindings: Binding[], body: CExp[]): LetStarExp =>
+    ({tag: "LetStarExp", bindings: bindings, body: body});
 
 // Type predicates for disjoint types
 export const isProgram = (x: any): x is Program => x.tag === "Program";
@@ -112,6 +118,9 @@ export const isBinding = (x: any): x is Binding => x.tag === "Binding";
 export const isLetExp = (x: any): x is LetExp => x.tag === "LetExp";
 // L3
 export const isLitExp = (x: any): x is LitExp => x.tag === "LitExp";
+// L3.1
+export const isLetStarExp = (x: any): x is LetStarExp => x.tag === "LetStarExp";
+
 
 // Type predicates for type unions
 export const isExp = (x: any): x is Exp => isDefineExp(x) || isCExp(x);
@@ -162,6 +171,7 @@ export const parseL31SpecialForm = (op: Sexp, params: Sexp[]): Result<CExp> =>
     op === "if" ? parseIfExp(params) :
     op === "lambda" ? parseProcExp(first(params), rest(params)) :
     op === "let" ? parseLetExp(first(params), rest(params)) :
+    op === "let*" ? parseLetStarExp(first(params), rest(params)) :
     op === "quote" ? parseLitExp(first(params)) :
     makeFailure("Never");
 
@@ -171,6 +181,8 @@ export const parseDefine = (params: Sexp[]): Result<DefineExp> =>
     isEmpty(rest(params)) ? makeFailure("define missing 1 arguments") :
     ! isEmpty(rest(rest(params))) ? makeFailure("define has too many arguments") :
     parseGoodDefine(first(params), second(params));
+
+
 
 const parseGoodDefine = (variable: Sexp, val: Sexp): Result<DefineExp> =>
     ! isIdentifier(variable) ? makeFailure("First arg of define must be an identifier") :
@@ -203,7 +215,7 @@ const isPrimitiveOp = (x: string): boolean =>
      "number?", "boolean?", "symbol?", "string?"].includes(x);
 
 const isSpecialForm = (x: string): boolean =>
-    ["if", "lambda", "let", "quote"].includes(x);
+    ["if", "lambda", "let", "let*", "quote"].includes(x);
 
 const parseAppExp = (op: Sexp, params: Sexp[]): Result<AppExp> =>
     bind(parseL31CExp(op), (rator: CExp) => 
@@ -238,6 +250,21 @@ const parseLetExp = (bindings: Sexp, body: Sexp[]): Result<LetExp> => {
     return bind(bindingsResult, (bindings: Binding[]) => 
                     mapv(mapResult(parseL31CExp, body), (body: CExp[]) =>
                             makeLetExp(bindings, body)));
+}
+
+const parseLetStarExp = (bindings: Sexp, body: Sexp[]): Result<LetStarExp> => {
+    if (!isGoodBindings(bindings)) {
+        return makeFailure('Malformed bindings in "let*" expression');
+    }
+    // Given (letrec ( (var <val>) ...) <cexp> ...)
+    // Return makeLetExp( [makeBinding(var, parse(<val>)) ...], [ parse(<cexp>) ...] )
+    // After isGoodBindings, bindings has type [string, Sexp][]
+    const vars = map(b => b[0], bindings);
+    const valsResult = mapResult(parseL3CExp, map(second, bindings));
+    const bindingsResult = mapv(valsResult, (vals: CExp[]) => zipWith(makeBinding, vars, vals));
+    return bind(bindingsResult, (bindings: Binding[]) =>
+        mapv(mapResult(parseL3CExp, body), (body: CExp[]) =>
+            makeLetStarExp(bindings, body)));
 }
 
 // sexps has the shape (quote <sexp>)
@@ -276,6 +303,7 @@ export const parseSExp = (sexp: Sexp): Result<SExpValue> =>
 // Unparse: Map an AST to a concrete syntax string.
 
 import { isSymbolSExp, isEmptySExp, isCompoundSExp } from '../imp/L3-value';
+import {parseL3CExp} from "../imp/L3-ast";
 
 
 // Add a quote for symbols, empty and compound sexp - strings and numbers are not quoted.
@@ -293,6 +321,8 @@ const unparseProcExp = (pe: ProcExp): string =>
 
 const unparseLetExp = (le: LetExp) : string => 
     `(let (${map((b: Binding) => `(${b.var.var} ${unparseL31(b.val)})`, le.bindings).join(" ")}) ${unparseLExps(le.body)})`
+const unparseLetStarExp = (le: LetStarExp) : string =>
+    `(let* (${map((b: Binding) => `(${b.var.var} ${unparseL31(b.val)})`, le.bindings).join(" ")}) ${unparseLExps(le.body)})`
 
 export const unparseL31 = (exp: Program | Exp): string =>
     isBoolExp(exp) ? valueToString(exp.val) :
@@ -305,6 +335,7 @@ export const unparseL31 = (exp: Program | Exp): string =>
     isAppExp(exp) ? `(${unparseL31(exp.rator)} ${unparseLExps(exp.rands)})` :
     isPrimOp(exp) ? exp.op :
     isLetExp(exp) ? unparseLetExp(exp) :
+    isLetStarExp(exp) ? unparseLetStarExp(exp) :
     isDefineExp(exp) ? `(define ${exp.var.var} ${unparseL31(exp.val)})` :
     isProgram(exp) ? `(L31 ${unparseLExps(exp.exps)})` :
     exp;
