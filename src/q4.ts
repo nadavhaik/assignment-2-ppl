@@ -278,6 +278,5 @@ const translateProgramToJS: (program: Program) => string = (program: Program) =>
 export const l30ToJS = (exp: Exp | Program): Result<string>  => {
     if (isExp(exp))
         return makeOk(translateExpToJS(exp))
-    //return makeOk(MAKELIST_FUNCTION + translateProgramToJS(exp))
     return makeOk(translateProgramToJS(exp))
 }

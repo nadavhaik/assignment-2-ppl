@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { parseL3, parseL3Exp } from '../imp/L3-ast';
-import { bind, Result, makeOk } from '../shared/result';
+import {bind, Result, makeOk, isOk, optionalValue} from '../shared/result';
 import { l30ToJS } from '../src/q4';
 import { parse as p } from "../shared/parser";
 
@@ -47,6 +47,15 @@ describe('Q4 Tests', () => {
         expect(l30toJSResult(`"a"`)).to.deep.equal(makeOk(`"a"`));
         expect(l30toJSResult(`'a`)).to.deep.equal(makeOk(`Symbol.for("a")`));
         expect(l30toJSResult(`symbol?`)).to.deep.equal(makeOk(`((x) => (typeof (x) === symbol))`))
+        expect(l30toJSResult(`(string=? "a" "b")`)).to.deep.equal(makeOk(`("a" === "b")`))
+    });
+
+    it("testAvital1", () => {
+        let x = l30toJSResult(`(+ 0 -3 15)`)
+        expect(isOk(x)).to.deep.equal(true)
+        let test = optionalValue(x)
+        let res = eval(test)
+
         expect(l30toJSResult(`(string=? "a" "b")`)).to.deep.equal(makeOk(`("a" === "b")`))
     });
 

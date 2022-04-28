@@ -78,3 +78,5 @@ export const safe2 = <T1, T2, T3>(f: (x: T1, y: T2) => Result<T3>): (xr: Result<
 
 export const resultToOptional = <T>(r: Result<T>): Optional<T> =>
     either(r, makeSome, _ => makeNone());
+
+export const optionalValue = <T>(r: Result<T>) : T | string => isOk(r) ? r.value : ""
