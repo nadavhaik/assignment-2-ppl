@@ -56,7 +56,44 @@ describe('Q4 Tests', () => {
         let test = optionalValue(x)
         let res = eval(test)
 
+    
+
         expect(l30toJSResult(`(string=? "a" "b")`)).to.deep.equal(makeOk(`("a" === "b")`))
+        expect(l30toJSResult(`(+ 4 5)`)).to.deep.equal(makeOk(`(4+5)`))
+    
     });
+
+    it("AvitalLetTest1", () => {
+        expect(l30toJSResult(`(let ((a 10) (b 20)) (> a b))`)).to.deep.equal(makeOk(`((a,b) => (a > b))(10,20)`));
+    });
+
+    it('Avital parses "lambda" expressions', () => {
+        expect(l30toJSResult(`(lambda (x y) (+ x y))`)).to.deep.equal(makeOk(`((x,y) => (x + y))`));
+        expect(l30toJSResult(`((lambda (x y) (> x y)) 1 2)`)).to.deep.equal(makeOk(`((x,y) => (x > y))(1,2)`));
+    });
+
+    it("Avital defines constants", () => {
+        expect(l30toJSResult(`(define our_names "Nadav and Avital")`)).to.deep.equal(makeOk(`const our_names = "Nadav and Avital"`));
+    });
+
+    it("Avital defines functions", () => {
+        expect(l30toJSResult(`(define f (lambda (x y) (= x y)))`)).to.deep.equal(makeOk(`const f = ((x,y) => (x === y))`));
+    });
+
+    it('Avital parses "if" expressions', () => {
+        expect(l30toJSResult(`(if (= x 3) #t #f)`)).to.deep.equal(makeOk(`((x === 3) ? true : false)`));
+    });
+
+    it("Avital applies user-defined functions", () => {
+        expect(l30toJSResult(`(f #t 20)`)).to.deep.equal(makeOk(`f(true,20)`));
+    });
+
+    it("Avital literal expressions", () => {
+        expect(l30toJSResult(`"b"`)).to.deep.equal(makeOk(`"b"`));
+        expect(l30toJSResult(`'5`)).to.deep.equal(makeOk(`Symbol.for("5")`));
+    });
+
+
+
 
 });
