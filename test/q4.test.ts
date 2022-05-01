@@ -57,7 +57,7 @@ describe('Q4 Tests', () => {
         expect((translateL30AndEval(`string=?`))("1", "2")).to.deep.equal(false)
         expect((translateL30AndEval(`string=?`))(1, "1")).to.deep.equal(false)
         expect(translateL30AndEval(`(+ 4 5)`)).to.deep.equal(9)
-    
+        expect(translateL30AndEval(`(+ 4 5 2)`)).to.deep.equal(11)
     });
 
     it("AvitalLetTest1", () => {
@@ -90,7 +90,11 @@ describe('Q4 Tests', () => {
         expect(l30toJSResult(`"b"`)).to.deep.equal(makeOk(`"b"`));
         expect(l30toJSResult(`'5`)).to.deep.equal(makeOk(`Symbol.for("5")`));
     });
-
+    it("+", () => {
+        expect(translateL30AndEval(`+`)(1, 2, 3)).to.deep.equal(6)
+        expect(translateL30AndEval(`+`)(1, 2)).to.deep.equal(3)
+        expect(translateL30AndEval(`(+ 1 2)`)).to.deep.equal(3)
+    });
 
     it("list", () => {
         expect(translateL30AndEval(`(list 1)`)).to.deep.equal(translateL30AndEval("(cons 1 '())"))
