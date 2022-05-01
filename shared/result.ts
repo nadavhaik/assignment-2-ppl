@@ -80,3 +80,9 @@ export const resultToOptional = <T>(r: Result<T>): Optional<T> =>
     either(r, makeSome, _ => makeNone());
 
 export const optionalValue = <T>(r: Result<T>) : T | string => isOk(r) ? r.value : ""
+
+export const okValue = <T>(r: Result<T>): T => {
+    if(!isOk(r))
+        throw "Not an OK"
+    return r.value
+}

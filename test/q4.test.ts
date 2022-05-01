@@ -1,11 +1,12 @@
 import { expect } from 'chai';
 import { parseL3, parseL3Exp } from '../imp/L3-ast';
-import {bind, Result, makeOk, isOk, optionalValue} from '../shared/result';
+import {bind, Result, makeOk, isOk, optionalValue, okValue} from '../shared/result';
 import { l30ToJS } from '../src/q4';
 import { parse as p } from "../shared/parser";
-
+import * as R from "ramda"
 const l30toJSResult = (x: string): Result<string> =>
     bind(bind(p(x), parseL3Exp), l30ToJS);
+const translateL30AndEval = R.pipe(l30toJSResult, okValue, eval)
 
 describe('Q4 Tests', () => {
     it('parses primitive ops', () => {
@@ -51,20 +52,17 @@ describe('Q4 Tests', () => {
     });
 
     it("testAvital1", () => {
-        let x = l30toJSResult(`(+ 0 -3 15)`)
-        expect(isOk(x)).to.deep.equal(true)
-        let test = optionalValue(x)
-        let res = eval(test)
-
-    
-
-        expect(l30toJSResult(`(string=? "a" "b")`)).to.deep.equal(makeOk(`("a" === "b")`))
-        expect(l30toJSResult(`(+ 4 5)`)).to.deep.equal(makeOk(`(4+5)`))
+        expect(translateL30AndEval(`(+ 0 -3 15)`)).to.deep.equal(12)
+        expect((translateL30AndEval(`string=?`))("1", "1")).to.deep.equal(true)
+        expect((translateL30AndEval(`string=?`))("1", "2")).to.deep.equal(false)
+        expect((translateL30AndEval(`string=?`))(1, "1")).to.deep.equal(false)
+        expect(translateL30AndEval(`(+ 4 5)`).to.deep.equal(9))
     
     });
 
     it("AvitalLetTest1", () => {
-        expect(l30toJSResult(`(let ((a 10) (b 20)) (> a b))`)).to.deep.equal(makeOk(`((a,b) => (a > b))(10,20)`));
+        expect(l30toJSResult(translateL30AndEval(`(let (((a 10) (b 20)) (> a b)))`))).to.deep.equal(false);
+        expect(l30toJSResult(translateL30AndEval(`(let (((a 20) (b 10)) (> a b)))`))).to.deep.equal(true);
     });
 
     it('Avital parses "lambda" expressions', () => {

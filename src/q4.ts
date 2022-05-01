@@ -23,11 +23,11 @@ Type: [LetExp => AppExp]
 */
 
 
-const MAKELIST_FUNCTION = "const makeList = (...params) => {\n" +
-"    let val =  {tag: \"symbol\", val: \"()\"}\n" +
-"    params.forEach((param) => {val = [param, val]})\n" +
-"    return val \n" +
-"}\n\n"
+const MAKELIST_FUNCTION = "((...params) => {\n" +
+"    let val =   Symbol.for(\"()\");\n" +
+"    params.forEach((param) => {val = [param, val]});\n" +
+"    return val;\n" +
+"})"
 
 const letToApp = (e: LetExp): AppExp => {
     const vars: VarDecl[] = map((b) => b.var, e.bindings);
@@ -91,7 +91,7 @@ const jsNot: (rands: CExp[]) => string = (rands: CExp[]) => {
     if(rands.length != 1)
         throw "Cannot apply 'not' operator on " + rands.length + " parameters"
 
-    return "(! " + translateExpToJS(rands[0]) + ")"
+    return "(!" + translateExpToJS(rands[0]) + ")"
 }
 
 const jsTypeEquals: (jsType: string, rands: CExp[]) => string = (jsType: string, rands: CExp[]) => {
@@ -122,14 +122,21 @@ const jsApplyFunction: (functionName: string, rands: CExp[]) => string = (functi
     for(let i=0; i<rands.length; i++) {
         s += translateExpToJS(rands[i])
         if(i<rands.length-1)
-            s += ", "
+            s += ","
     }
     s += ")"
 
     return s
 }
 
-const jsCreateList: (rands: CExp[]) => string = (rands: CExp[]) =>  jsApplyFunction("makeList", rands)
+const jsCreateList: (rands: CExp[]) => string = (rands: CExp[]) => {
+    let params = "("
+    rands.forEach((r) => {
+        params += translateExpToJS(r) + ","
+    })
+    params = params.substring(0, params.length-1) + ")"
+    return MAKELIST_FUNCTION + params
+}
 const jsCreatePair: (rands: CExp[]) => string = (rands: CExp[]) => `[${translateExpToJS(rands[0])}, ${translateExpToJS(rands[1])}]`
 
 
@@ -189,6 +196,7 @@ const l3AppToJSString: (e: AppExp) => string = (e: AppExp) => {
                 return jsPairArithmetic(e.rator.op, e.rands)
             case "=":
             case "eq?":
+            case "string=?":
                 return jsPairArithmetic("===", e.rands)
             case "not":
                 return jsNot(e.rands)
@@ -206,9 +214,6 @@ const l3AppToJSString: (e: AppExp) => string = (e: AppExp) => {
                 return jsGetFromPair(0, e.rands)
             case "cdr":
                 return jsGetFromPair(1, e.rands)
-            case "string=?":
-                return l3AppToJSString(makeAppExp(makePrimOp("and"), [makeAppExp(makePrimOp("string?"), [e.rands[0]]),
-                    makeAppExp(makePrimOp("="), e.rands)]))
             case "cons":
                 return jsCreatePair(e.rands)
             case "list":
@@ -268,10 +273,10 @@ const translateProgramToJS: (program: Program) => string = (program: Program) =>
 
     program.exps.forEach((exp: Exp) => {
         jsCode += translateExpToJS(exp)
-        jsCode += "\n"
+        jsCode += ";\n"
     })
 
-    return jsCode
+    return jsCode.substring(0, jsCode.length-2)
 
 }
 
