@@ -92,16 +92,54 @@ describe('Q4 Tests', () => {
     });
 
 
-    it("List", () => {
+    it("list", () => {
         expect(translateL30AndEval(`(list 1)`)).to.deep.equal(translateL30AndEval("(cons 1 '())"))
         expect(translateL30AndEval(`(list 1 2)`)).to.deep.equal(translateL30AndEval("(cons 1 (cons 2 '()))"))
         expect(translateL30AndEval(`(list 1 2 3)`)).to.deep.equal(translateL30AndEval("(cons 1 (cons 2 (cons 3'())))"))
         expect(translateL30AndEval(`(list 1 2 3)`)).to.deep.equal(eval((translateL30AndEval(`list`))(1,2,3)))
     });
 
-    it("String?", () => {
-       expect(translateL30AndEval(`(string? "1")`)).to.deep.equal(true)
-       expect(translateL30AndEval(`(string? 1)`)).to.deep.equal(false)
+    it("string?", () => {
+        expect(translateL30AndEval(`(string? "1")`)).to.deep.equal(true)
+        expect(translateL30AndEval(`(string? 1)`)).to.deep.equal(false)
+        expect(translateL30AndEval(`(string? '1 )`)).to.deep.equal(false)
+        expect(translateL30AndEval(`string?`)("1")).to.deep.equal(true)
+        expect(translateL30AndEval(`string?`)(1)).to.deep.equal(false)
     });
 
+    it("symbol?", () => {
+        expect(translateL30AndEval(`(symbol? '1)`)).to.deep.equal(true)
+        expect(translateL30AndEval(`(symbol? "1")`)).to.deep.equal(false)
+        expect(translateL30AndEval(`(symbol? 1)`)).to.deep.equal(false)
+        expect(translateL30AndEval(`symbol?`)(translateL30AndEval("'a"))).to.deep.equal(true)
+        expect(translateL30AndEval(`symbol?`)(translateL30AndEval(`"a"`))).to.deep.equal(false)
+    });
+
+    it("boolean?", () => {
+        expect(translateL30AndEval(`(boolean? #f)`)).to.deep.equal(true)
+        expect(translateL30AndEval(`(boolean? "f")`)).to.deep.equal(false)
+        expect(translateL30AndEval(`(boolean? "#f")`)).to.deep.equal(false)
+        expect(translateL30AndEval(`(boolean? #t)`)).to.deep.equal(true)
+        expect(translateL30AndEval(`(boolean? "t")`)).to.deep.equal(false)
+        expect(translateL30AndEval(`(boolean? "#t")`)).to.deep.equal(false)
+    });
+
+    it("number?", () => {
+        expect(translateL30AndEval(`(number? 1)`)).to.deep.equal(true)
+        expect(translateL30AndEval(`(number? "1")`)).to.deep.equal(false)
+        expect(translateL30AndEval("(number? '1)")).to.deep.equal(false)
+        expect(translateL30AndEval("(number? '1)")).to.deep.equal(false)
+    });
+    it("pair?", () => {
+        expect(translateL30AndEval(`(pair? 1)`)).to.deep.equal(false)
+        expect(translateL30AndEval(`(pair? (cons 1 2))`)).to.deep.equal(true)
+        expect(translateL30AndEval(`(pair? (list 1 2))`)).to.deep.equal(true)
+        expect(translateL30AndEval(`pair?`)(translateL30AndEval("(cons 1 2)"))).to.deep.equal(true)
+        expect(translateL30AndEval(`pair?`)(translateL30AndEval("3"))).to.deep.equal(false)
+    })
+
+    it("car cdr", () => {
+        expect(translateL30AndEval(`(car (cons 1 2))`)).to.deep.equal(1)
+        expect(translateL30AndEval(`(cdr (cons 1 2))`)).to.deep.equal(2)
+    });
 });

@@ -97,7 +97,7 @@ const jsNot: (rands: CExp[]) => string = (rands: CExp[]) => {
 const jsTypeEquals: (jsType: string, rands: CExp[]) => string = (jsType: string, rands: CExp[]) => {
     if(rands.length != 1)
         throw "Cannot apply 'typeequals' operator on " + rands.length + " parameters"
-    return `(typeof ${translateExpToJS(rands[0])} === "${jsType}")`
+    return `(typeof(${translateExpToJS(rands[0])}) === "${jsType}")`
 }
 
 const jsIsPair: (rands: CExp[]) => string = (rands: CExp[]) => {
@@ -158,22 +158,24 @@ const l3PrimOpToJSLambdaString: (e: PrimOp) => string = (e: PrimOp) => {
         case "=":
         case "eq?":
             return `((x,y) => x===y)`
+        case "string=?":
+            return `((x, y) => x===y)`
         case "not":
             return `((x) => !x)`
         case "symbol?":
-            return `((x) => typeof(x) === "Symbol")`
+            return `((x) => typeof(x) === "symbol")`
         case "pair?":
             return `((x) => Array.isArray(x))`
         case "boolean?":
             return `((x) => typeof(x) === "boolean")`
         case "number?":
             return `((x) => typeof(x) === "number")`
+        case "string?":
+            return `((x) => typeof(x) === "string")`
         case "car":
             return `((x) => x[0])`
         case "cdr":
             return `((x) => x[1])`
-        case "string=?":
-            return `((x, y) => x===y)`
         case "cons":
             return '((x, y) => [x, y])'
         case "list":
@@ -205,7 +207,7 @@ const l3AppToJSString: (e: AppExp) => string = (e: AppExp) => {
             case "string?":
                 return jsIsString(e.rands)
             case "symbol?":
-                return jsTypeEquals("Symbol", e.rands)
+                return jsTypeEquals("symbol", e.rands)
             case "pair?":
                 return jsIsPair(e.rands)
             case "boolean?":
@@ -265,6 +267,8 @@ const translateExpToJS: (exp: Exp | VarDecl) => string = (exp: Exp | VarDecl | B
         return translateExpToJS(exp.var) + " = " + translateExpToJS(exp.val)
     if(isPrimOp(exp))
         return l3PrimOpToJSLambdaString(exp)
+    if(isLitExp(exp))
+        return `Symbol.for("${exp.val}")`
 
     throw "Unrecognized expression" + JSON.stringify(exp)
 
