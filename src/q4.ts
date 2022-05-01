@@ -36,7 +36,7 @@ const letToApp = (e: LetExp): AppExp => {
 }
 const isNotEmptySymbolExp: (e: any) => boolean = (e: any) => isLitExp(e) &&  isSymbolSExp(e.val)
 const isEmptySymbolExp: (e: any) => boolean = (e: any) => isLitExp(e) && isEmptySExp(e.val)
-const escapeQuotes: (s: string) => string = (s: string) => s.replace(/"/gi, "\\\"")
+const escapeQuotes: (s: string) => string = (s: string) => String.raw`${s}`
 const l3StringToJSString: (s: string) => string = (s: string) => `"${escapeQuotes(s)}"`
 const l3SymbolToJSString: (s: string) => string = (s: string) => `Symbol.for("${s}")`
 const boolToJSString: (b: boolean) => string = (b: boolean) => b ? "true" : "false"
@@ -108,7 +108,7 @@ const jsIsPair: (rands: CExp[]) => string = (rands: CExp[]) => {
 const jsIsString: (rands: CExp[]) => string = (rands: CExp[]) => {
     if(rands.length != 1)
         throw "Cannot apply 'isString' operator on " + rands.length + " parameters"
-    return `(typeof ${translateExpToJS(rands[0])} === 'string' || ${translateExpToJS(rands[0])} instanceof String)`
+    return `(typeof(${translateExpToJS(rands[0])}) === 'string')`
 }
 
 const jsGetFromPair: (index: number, rands: CExp[]) => string = (index: number, rands: CExp[]) => {
