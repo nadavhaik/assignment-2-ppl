@@ -47,7 +47,7 @@ describe('Q4 Tests', () => {
     it("literal expressions", () => {
         expect(l30toJSResult(`"a"`)).to.deep.equal(makeOk(`"a"`));
         expect(l30toJSResult(`'a`)).to.deep.equal(makeOk(`Symbol.for("a")`));
-        expect(l30toJSResult(`symbol?`)).to.deep.equal(makeOk(`((x) => (typeof (x) === symbol))`))
+        expect(l30toJSResult(`symbol?`)).to.deep.equal(makeOk(`((x) => typeof(x) === "symbol")`))
         expect(l30toJSResult(`(string=? "a" "b")`)).to.deep.equal(makeOk(`("a" === "b")`))
     });
 
