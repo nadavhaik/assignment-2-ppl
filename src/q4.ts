@@ -25,7 +25,7 @@ Type: [LetExp => AppExp]
 
 const MAKELIST_FUNCTION = "((...params) => {\n" +
 "    let val =   Symbol.for(\"()\");\n" +
-"    params.forEach((param) => {val = [param, val]});\n" +
+"    params.reverse().forEach((param) => {val = [param, val]});\n" +
 "    return val;\n" +
 "})"
 
@@ -176,6 +176,8 @@ const l3PrimOpToJSLambdaString: (e: PrimOp) => string = (e: PrimOp) => {
             return `((x, y) => x===y)`
         case "cons":
             return '((x, y) => [x, y])'
+        case "list":
+            return MAKELIST_FUNCTION
     }
     throw new Error("Unrecognized operator: " + JSON.stringify(e))
 }

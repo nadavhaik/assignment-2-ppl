@@ -92,6 +92,10 @@ describe('Q4 Tests', () => {
     });
 
 
-
+    it("List", () => {
+       let x = translateL30AndEval(`(list 1 2 3)`);
+       let y = eval((translateL30AndEval(`list`))(1,2,3))
+       expect(x).to.deep.equal(y)
+    });
 
 });
